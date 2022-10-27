@@ -8,6 +8,7 @@ import Search from './Search';
 function DetailsTable() {
 
   const [data, setData] = useState([])
+  const [query, setQuery] = useState('')
 
   const getData = async () => {
     const data = await fetch('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
@@ -22,7 +23,10 @@ function DetailsTable() {
 
   return (
     <Container>
-      <Search />
+      <section>
+        <input type="text" value={query} placeholder='Search by name' onChange={(e) => setQuery(e.target.value)} />
+      </section>
+
       <table>
         <thead>
           <tr>
@@ -44,7 +48,12 @@ function DetailsTable() {
           </tr>
         </thead>
         <tbody>
-          {data?.map((item) => (
+          {data.filter((data) => {
+            console.log(data.name.toLowerCase(), 'ki')
+            if (data.name.toLowerCase().includes(query)) {
+              return data
+            }
+          }).map((item) => (
             <tr key={item.id}>
               <td>
                 <input type="checkbox" />
@@ -54,10 +63,11 @@ function DetailsTable() {
               <td>{item.role}</td>
               <td>
                 <FaEdit />
-                <FaTrash/>
+                <FaTrash />
               </td>
             </tr>
-          ))}
+          ))
+          }
         </tbody>
       </table>
     </Container>

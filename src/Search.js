@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components'
 
-function Search() {
-  const [query, setQuery] = React.useState('')
+function Search({ getQuery }) {
 
   return (
     <SearchContainer>
-      <input type="text" value={query} placeholder='Search by name' />
+      {console.log(getQuery)}
+      <input type="text" value={'ok'} placeholder='Search by name' onChange={(e) => getQuery(e.target.value)} />
     </SearchContainer>
   )
 }
