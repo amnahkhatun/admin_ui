@@ -12,6 +12,8 @@ function DetailsTable() {
   const [name, setName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editID, setEditID] = useState(null);
+  const [deletedItems, setDeletedItems] = useState([]);
+
 
   const getData = async () => {
     const data = await fetch('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
@@ -36,10 +38,14 @@ function DetailsTable() {
     setData(updatedItems)
   }
 
+  const deleteMultipleItems = () => {
+
+  }
+
   return (
     <Container>
       <section>
-        <input type="text" value={query} placeholder='Search by name' onChange={(e) => setQuery(e.target.value)} />
+        <input className="searchInput" type="text" value={query} placeholder='Search by name' onChange={(e) => setQuery(e.target.value)} />
       </section>
 
       <table>
@@ -64,14 +70,13 @@ function DetailsTable() {
         </thead>
         <tbody>
           {data.filter((data) => {
-            console.log(data, 'ki')
-            if (data.name.toLowerCase().includes(query)) {
+            if (data.name.toLowerCase().includes(query) || data.email.toLowerCase().includes(query) || data.role.toLowerCase().includes(query)) {
               return data
             }
           }).map((item) => (
             <tr key={item.id}>
               <td>
-                <input type="checkbox" />
+                <input type="checkbox" onChange={() => setDeletedItems(deletedItems.push(item.id))} />
               </td>
               <td>
                 {isEditing ? <input
@@ -100,6 +105,11 @@ function DetailsTable() {
 
 
 const Container = styled.div`
+.searchInput{
+  margin:1%;
+  padding:1%;
+  width:80%;
+}
 table {
   border: 1px solid #ccc;
   border-collapse: collapse;
@@ -133,6 +143,11 @@ table th {
 }
 
 @media screen and (max-width: 600px) {
+  .searchInput{
+  margin:1%;
+  padding:1%;
+  width:13rem;
+}
   table {
     border: 0;
   }
@@ -166,10 +181,6 @@ table th {
   }
   
   table td::before {
-    /*
-    * aria-label has no advantage, it won't be read inside a table
-    content: attr(aria-label);
-    */
     content: attr(data-label);
     float: left;
     font-weight: bold;
@@ -182,17 +193,3 @@ table th {
 }
 `
 export default DetailsTable;
-
-// if (!root) return 0;
-// let diameter = 0;
-// height(root);
-// return diameter;
-
-// function height(node) {//4,2,3,1
-//   if (!node) return 0; //0,0,0,0,0,0
-
-//   const leftHeight = height(node.left);//2,4,null,null,null,2
-//   const rightHeight = height(node.right);//null,5,null,3,null,1
-//   diameter = Math.max(diameter, leftHeight + rightHeight)//0,0,2,2,3
-//   return Math.max(leftHeight, rightHeight) + 1 //1,1,2,1,3;
-// }
