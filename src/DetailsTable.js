@@ -3,11 +3,15 @@ import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { FaTrash, FaEdit } from 'react-icons/fa'
 import Search from './Search';
+import paginate from './utils';
 
 
 function DetailsTable() {
 
   const [data, setData] = useState([])
+  const [page, setPage] = useState(0)
+  const [followers, setFollowers] = useState([])
+  const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
   const [name, setName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -18,7 +22,8 @@ function DetailsTable() {
   const getData = async () => {
     const data = await fetch('https://geektrust.s3-ap-southeast-1.amazonaws.com/adminui-problem/members.json');
     const resp = await data.json();
-    setData(resp)
+    setData(paginate(resp))
+    setLoading(false)
   }
 
   const editItem = (id) => {
@@ -32,6 +37,11 @@ function DetailsTable() {
     getData()
   }, [])
 
+  useEffect(() => {
+    if (loading) return
+    setFollowers(data[page])
+  }, [loading, page])
+
   const deleteItem = (id) => {
     const updatedItems = data.filter((item) => item.id !== id)
     setData(updatedItems)
@@ -43,6 +53,7 @@ function DetailsTable() {
 
   return (
     <Container>
+      {console.log({followers})}
       <section>
         <input className="searchInput" type="text" value={query} placeholder='Search by name' onChange={(e) => setQuery(e.target.value)} />
       </section>
@@ -68,34 +79,36 @@ function DetailsTable() {
           </tr>
         </thead>
         <tbody>
-          {data.filter((data) => {
-            if (data.name.toLowerCase().includes(query) || data.email.toLowerCase().includes(query) || data.role.toLowerCase().includes(query)) {
-              return data
-            }
-          }).map((item) => (
-            <tr key={item.id}>
-              <td>
-                <input type="checkbox" onChange={() => setDeletedItems(deletedItems.push(item.id))} />
-              </td>
-              <td>
-                {isEditing ? <input
-                  type='text'
-                  placeholder='e.g. amnah'
-                  value={item.name}
-                  onChange={(e) => setName(e.target.value)}
-                /> : item.name}
-              </td>
-              <td>{item.email}</td>
-              <td>{item.role}</td>
-              <td>
-                <FaEdit />
-                <FaTrash onClick={() => deleteItem(item.id)} />
-              </td>
-            </tr>
-          ))
-          }
+            {followers.filter((data) => {
+              if (data?.name.toLowerCase().includes(query) || data?.email.toLowerCase().includes(query) || data?.role.toLowerCase().includes(query)) {
+                return data
+              }
+            }).map((item) => (
+              <tr key={item.id}>
+                <td>
+                  <input type="checkbox" onChange={() => setDeletedItems(deletedItems.push(item.id))} />
+                </td>
+                <td>
+                  {isEditing ? <input
+                    type='text'
+                    placeholder='e.g. amnah'
+                    value={item.name}
+                    onChange={(e) => setName(e.target.value)}
+                  /> : item.name}
+                </td>
+                <td>{item.email}</td>
+                <td>{item.role}</td>
+                <td>
+                  <FaEdit />
+                  <FaTrash onClick={() => deleteItem(item.id)} />
+                </td>
+              </tr>
+            ))}
+
+          
         </tbody>
       </table>
+      {/* <Paginate data={data} /> */}
     </Container>
   )
 }

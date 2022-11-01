@@ -7,10 +7,7 @@ function App() {
   return (
     <main className="App">
       <section>
-       <DetailsTable/>
-      </section>
-      <section>
-        pagination
+        <DetailsTable />
       </section>
     </main>
   );
