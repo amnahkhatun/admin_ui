@@ -42,22 +42,39 @@ function DetailsTable() {
     setFollowers(data[page])
   }, [loading, page])
 
+  const prevPage = () => {
+    setPage((oldPage) => {
+      let prevPage = oldPage - 1;
+      if (prevPage < 0) {
+        prevPage = data.length - 1
+      }
+      return prevPage
+    })
+  }
+  const nextPage = () => {
+    setPage((oldPage) => {
+      let nextPage = oldPage + 1;
+      if (nextPage > data.length - 1) {
+        nextPage = 0
+      }
+      return nextPage
+    })
+  }
+
   const deleteItem = (id) => {
     const updatedItems = data.filter((item) => item.id !== id)
     setData(updatedItems)
   }
-
-  const deleteMultipleItems = () => {
-
+  const handlePage = (page) => {
+    setPage(page)
   }
 
   return (
     <Container>
-      {console.log({followers})}
       <section>
         <input className="searchInput" type="text" value={query} placeholder='Search by name' onChange={(e) => setQuery(e.target.value)} />
       </section>
-
+      <h1>{loading ? 'loading...' : ''}</h1>
       <table>
         <thead>
           <tr>
@@ -79,36 +96,48 @@ function DetailsTable() {
           </tr>
         </thead>
         <tbody>
-            {followers.filter((data) => {
-              if (data?.name.toLowerCase().includes(query) || data?.email.toLowerCase().includes(query) || data?.role.toLowerCase().includes(query)) {
-                return data
-              }
-            }).map((item) => (
-              <tr key={item.id}>
-                <td>
-                  <input type="checkbox" onChange={() => setDeletedItems(deletedItems.push(item.id))} />
-                </td>
-                <td>
-                  {isEditing ? <input
-                    type='text'
-                    placeholder='e.g. amnah'
-                    value={item.name}
-                    onChange={(e) => setName(e.target.value)}
-                  /> : item.name}
-                </td>
-                <td>{item.email}</td>
-                <td>{item.role}</td>
-                <td>
-                  <FaEdit />
-                  <FaTrash onClick={() => deleteItem(item.id)} />
-                </td>
-              </tr>
-            ))}
+          {followers.filter((data) => {
+            if (data?.name.toLowerCase().includes(query) || data?.email.toLowerCase().includes(query) || data?.role.toLowerCase().includes(query)) {
+              return data
+            }
+          }).map((item) => (
+            <tr key={item.id}>
+              <td>
+                <input type="checkbox" onChange={() => setDeletedItems(deletedItems.push(item.id))} />
+              </td>
+              <td>
+                {isEditing ? <input
+                  type='text'
+                  placeholder='e.g. amnah'
+                  value={item.name}
+                  onChange={(e) => setName(e.target.value)}
+                /> : item.name}
+              </td>
+              <td>{item.email}</td>
+              <td>{item.role}</td>
+              <td>
+                <FaEdit />
+                <FaTrash onClick={() => deleteItem(item.id)} />
+              </td>
+            </tr>
+          ))}
 
-          
+
         </tbody>
       </table>
-      {/* <Paginate data={data} /> */}
+      {!loading && <div className="page-container">
+        <button className='prev-btn' onClick={prevPage}>
+          prev
+        </button>
+        {data.map((item, index) => {
+          return <button className={`page-btn ${index === page ? 'active-btn' : null}`} onClick={() => handlePage(index)}>
+            {index + 1}
+          </button>
+        })}
+        <button className='next-btn' onClick={nextPage}>
+          next
+        </button>
+      </div>}
     </Container>
   )
 }
@@ -153,7 +182,36 @@ table th {
   letter-spacing: .1em;
   text-transform: uppercase;
 }
+.page-btn{
+  width: 2rem;
+  height: 2rem;
+  background: hsl(205, 90%, 76%);
+  border-color: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0.5rem;
+  transition: all 0.3s linear;
+}
+.btn-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
 
+.prev-btn,
+.next-btn {
+  background: transparent;
+  border-color: transparent;
+  font-weight: bold;
+  text-transform: capitalize;
+  margin: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.active-btn {
+  background: hsl(205, 86%, 17%);
+  color: #fff;;
+}
 @media screen and (max-width: 600px) {
   .searchInput{
   margin:1%;
@@ -201,6 +259,12 @@ table th {
   
   table td:last-child {
     border-bottom: 0;
+  }
+}
+@media screen and (min-width: 775px) {
+  .btn-container {
+    margin: 0 auto;
+    max-width: 700px;
   }
 }
 `
