@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FaTrash, FaEdit } from 'react-icons/fa'
+import { FaTrash, FaEdit, FaSave } from 'react-icons/fa'
 import Search from './Search';
 import paginate from './utils';
 
@@ -27,10 +27,25 @@ function DetailsTable() {
   }
 
   const editItem = (id) => {
-    const specificItem = data.find((item) => item.id === id);
-    setIsEditing(true);
+    const specificItem = followers.find((item) => item.id === id);
+    setIsEditing(!isEditing);
     setEditID(id);
-    setName(specificItem.title);
+    // setName(specificItem.name);
+    console.log({ id }, specificItem.name)
+    if (name && isEditing) {
+      setFollowers(
+        followers.map((item) => {
+          if (item.id === editID) {
+            return { ...item, title: name };
+          }
+          return item;
+        })
+      );
+      // setName('');
+      // setEditID(null);
+      // setIsEditing(false);
+      // showAlert(true, 'success', 'value changed');
+    }
   };
 
   useEffect(() => {
@@ -106,7 +121,7 @@ function DetailsTable() {
                 <input type="checkbox" onChange={() => setDeletedItems(deletedItems.push(item.id))} />
               </td>
               <td>
-                {isEditing ? <input
+                {editID === item.id && isEditing ? <input
                   type='text'
                   placeholder='e.g. amnah'
                   value={item.name}
@@ -116,7 +131,8 @@ function DetailsTable() {
               <td>{item.email}</td>
               <td>{item.role}</td>
               <td>
-                <FaEdit />
+                {isEditing ? <FaSave /> :
+                  <FaEdit onClick={() => editItem(item.id)} />}
                 <FaTrash onClick={() => deleteItem(item.id)} />
               </td>
             </tr>
@@ -130,7 +146,7 @@ function DetailsTable() {
           prev
         </button>
         {data.map((item, index) => {
-          return <button className={`page-btn ${index === page ? 'active-btn' : null}`} onClick={() => handlePage(index)}>
+          return <button key={index} className={`page-btn ${index === page ? 'active-btn' : null}`} onClick={() => handlePage(index)}>
             {index + 1}
           </button>
         })}
